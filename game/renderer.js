@@ -86,21 +86,59 @@ const itemImages = {
     soul_stone: 'soulstone1.png', soul_stone2: 'soulstone2.png', soul_stone3: 'soulstone3.png', soul_stone4: 'soulstone4.png', soul_stone5: 'soulstone5.png'
 };
 
+// --- ОЧЕРЕДЬ ЗАГРУЗКИ КАРТИНОК ---
+// Раньше все ~350 картинок запрашивались одновременно; на части соединений сервер сбрасывал
+// запросы (ERR_CONNECTION_RESET). Теперь грузим не больше 8 за раз и повторяем при сбое.
+const IMAGE_MAX_PARALLEL = 8;
+const IMAGE_MAX_RETRIES = 4;
+const imageQueue = [];
+let imageActive = 0;
+
+function queueImage(img, src) {
+    imageQueue.push({ img: img, src: src, tries: 0 });
+    pumpImageQueue();
+}
+
+function pumpImageQueue() {
+    while (imageActive < IMAGE_MAX_PARALLEL && imageQueue.length > 0) {
+        const job = imageQueue.shift();
+        imageActive++;
+        job.img.onload = () => { imageActive--; pumpImageQueue(); };
+        job.img.onerror = () => {
+            imageActive--;
+            if (job.tries < IMAGE_MAX_RETRIES) {
+                job.tries++;
+                setTimeout(() => { imageQueue.push(job); pumpImageQueue(); }, 400 * job.tries);
+            }
+            pumpImageQueue();
+        };
+        job.img.src = job.tries > 0 ? job.src + (job.src.indexOf('?') >= 0 ? '&' : '?') + 'retry=' + job.tries : job.src;
+    }
+}
+
+// Оборванная картинка считается complete=true, но drawImage на ней кидает InvalidStateError.
+// Пропускаем рисование такой картинки (она дозагрузится повтором из очереди).
+const _drawImageOriginal = ctx.drawImage.bind(ctx);
+ctx.drawImage = function (img, ...args) {
+    if (img && img.naturalWidth === 0 && typeof img.complete === 'boolean') return;
+    return _drawImageOriginal(img, ...args);
+};
+
 function loadSimple(obj, prefix) {
     for (let k in obj) {
         let img = new Image();
-        img.src = prefix + obj[k];
-        IMAGES[k] = img;         
-        IMAGES[obj[k]] = img;    
+        queueImage(img, prefix + obj[k]);
+        IMAGES[k] = img;
+        IMAGES[obj[k]] = img;
     }
 }
 
 function loadCharacter(type, folderPath, baseName) {
-    IMAGES[type] = new Image(); IMAGES[type].src = folderPath + baseName + '.png';
-    ['right', 'up', 'down'].forEach(dir => { 
-        let key = type + '_' + dir; 
-        IMAGES[key] = new Image(); 
-        IMAGES[key].src = folderPath + baseName + '_' + dir + '.png'; 
+    IMAGES[type] = new Image(); queueImage(IMAGES[type], folderPath + baseName + '.png');
+    ['right', 'up', 'down'].forEach(dir => {
+        let key = type + '_' + dir;
+        IMAGES[key] = new Image();
+        queueImage(IMAGES[key], folderPath + baseName + '_' + dir + '.png');
     });
 }
 

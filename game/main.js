@@ -266,7 +266,19 @@ window.sendSyncData = () => {
     });
 };
 
-function loop(timestamp) { 
+// Обёртка цикла: следующий кадр планируется ДО выполнения кадра, а ошибка внутри кадра
+// не убивает цикл (раньше одна ошибка отрисовки = навсегда чёрный экран).
+let loopErrorCount = 0;
+function loop(timestamp) {
+    requestAnimationFrame(loop);
+    try {
+        loopFrame(timestamp);
+    } catch (e) {
+        if (loopErrorCount < 5) { loopErrorCount++; console.error('Game loop error (frame skipped):', e); }
+    }
+}
+
+function loopFrame(timestamp) {
     if (!lastTime) lastTime = timestamp;
     const deltaTime = timestamp - lastTime;
     lastTime = timestamp;
@@ -348,10 +360,7 @@ function loop(timestamp) {
     }
 
     // 2. Отрисовка работает ВСЕГДА
-    draw(); 
-
-    // 3. Цикл продолжается всегда
-    requestAnimationFrame(loop); 
+    draw();
 }
 
 window.getLastSyncBuild = function() {
