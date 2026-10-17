@@ -65,6 +65,12 @@ function updatePendingActions(dtMs) {
     due.forEach(a => a.fn());
 }
 
+// Прирост урона оружия за уровень: 1/6 базового урона (к 10-му уровню у всех оружий ×2.5)
+function weaponLevelDamageGain(w) {
+    const base = (DB.weapons[w.id] && DB.weapons[w.id].damage) || w.damage;
+    return base / 6;
+}
+
 // Таймеры «когда я последний раз бил этого врага» (ключ = сам объект врага, поэтому Map, а не {})
 function tickHitTimers(map, dtScale) {
     for (const [enemy, left] of map) {
@@ -465,7 +471,7 @@ function applyShopEffect(item) {
                 damageNumbers.push({x:player.x, y:player.y-50, val: "LEVEL UP!", color:'#9b59b6', life:120});
             } else {
                 choice.level++;
-                choice.damage = Math.ceil(choice.damage * 1.1); 
+                choice.damage += weaponLevelDamageGain(choice);
                 damageNumbers.push({x:player.x, y:player.y-50, val: "WEAPON UP!", color:'#f1c40f', life:120});
             }
             if(window.updateInventoryUI) window.updateInventoryUI();
@@ -1354,7 +1360,9 @@ function update(deltaTime) {
 
     updateProjectiles(dt_scale); 
     
-    let spawnRate = 0.02 + (gameTime/3000) + (player.stats.curse * 0.02);
+    // Темп спавна растёт от времени ТЕКУЩЕГО этапа (+0.01 за каждый этап), а не от общего времени забега
+    let timeInStageForSpawn = Math.max(0, gameTime - stageStartTime);
+    let spawnRate = 0.02 + 0.01 * (currentStage - 1) + (timeInStageForSpawn/3000) + (player.stats.curse * 0.02);
     if(currentStage === 3 && bossesSpawned.boss) spawnRate = 0; 
     if(isEndlessMode) spawnRate = 0.08 + (player.stats.curse * 0.05);
 

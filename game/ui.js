@@ -537,8 +537,9 @@ function getRandomCardOption(excludeIds = [], isChest = false) {
     }; } 
         else if (p.type === 'upg_weapon') {
             let w = player.weapons.find(x=>x.id===p.id);
-            diffText = `Dmg: ${w.damage} <span class="stat-arrow">-></span> ${w.damage+5}`;
-            func = () => { w.damage+=5; w.level++; };
+            let gain = weaponLevelDamageGain(w);
+            diffText = `Dmg: ${Math.round(w.damage)} <span class="stat-arrow">-></span> ${Math.round(w.damage + gain)}`;
+            func = () => { w.damage += gain; w.level++; };
         } else if (p.type === 'upg_item') {
             let lvl = player.items[p.id];
             diffText = `Lvl: ${lvl} <span class="stat-arrow">-></span> ${lvl+1}`;
