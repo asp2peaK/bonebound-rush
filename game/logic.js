@@ -522,8 +522,8 @@ function fireWeapon(w) {
     if (w.projSpeedMult) projSpeed *= w.projSpeedMult;
     if (w.durationInfinite) duration = 999;
     
-    let finalScale = size + area; 
-    if (w.area) finalScale = (w.area/100) * size; 
+    // Размер = (базовый множитель героя + Area игрока) × собственный размер оружия (если он задан)
+    let finalScale = (size + area) * (w.area ? w.area / 100 : 1);
 
     const DRAW_MULT = 0.65; 
     const OFFSET = 20;
@@ -688,8 +688,8 @@ if (w.id === 'sword') {
     }
     else if (w.id === 'garlic') {
         let garlicBonus = (1 + amount * 0.3); 
+        // Проклятие уже уменьшило w.area (areaMult 0.6), второй раз резать радиус не нужно
         let rad = (90 * finalScale);
-        if (w.isCursed) rad *= 0.6; 
         enemies.forEach(e => {
             if(Math.hypot(player.x-e.x, player.y-e.y) < rad + e.size) dealDamage(e, w.damage * might * garlicBonus, w.id, w.vampire);
         });
