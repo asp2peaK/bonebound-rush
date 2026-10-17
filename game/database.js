@@ -175,7 +175,7 @@ const TRANSLATIONS = {
         char_butcher: "МЯСНИК", desc_butcher: "Медленный гигант. (3 Оружия, +80 HP, +30% Сила, -20% Скор)",
         char_alchemist: "АЛХИМИК", desc_alchemist: "Мастер зелий. (+30% Длит, +20% Перезарядка, +10% Зона)",
         char_spartan: "СПАРТАНЕЦ", desc_spartan: "Яростный воин. (+40% Сила, +30 HP, +50% Проклятие, Медленные атаки)",
-        char_nun: "МОНАХИНЯ", desc_nun: "Святая вера. (+3 HP/сек Реген, +10% Опыт, -10% Скор)",
+        char_nun: "МОНАХИНЯ", desc_nun: "Святая вера. (+3 HP каждые 3 сек, +20% Опыт, +20% Скорострельность, +10% Зона, -10% Скор)",
         char_exorcist: "ЭКЗОРЦИСТ", desc_exorcist: "Охотник на демонов. (3 Оружия, 3 Предмета, +30 Удача, +20% Зона)",
         char_preacher: "ПРОПОВЕДНИК", desc_preacher: "Читает молитвы. (+30% Длит, +20 HP)"
     },
@@ -330,7 +330,7 @@ const TRANSLATIONS = {
 
         char_spartan: "SPARTAN", desc_spartan: "Furious warrior. (+40% Might, +30 HP, +50% Curse, Slow Atk)",
 
-        char_nun: "NUN", desc_nun: "Holy faith. (+3 HP/sec Regen, +10% Growth, -10% Speed)",
+        char_nun: "NUN", desc_nun: "Holy faith. (+3 HP every 3 sec, +20% Growth, +20% Fire Rate, +10% Area, -10% Speed)",
 
         char_exorcist: "EXORCIST", desc_exorcist: "Demon hunter. (3 Weapons, 3 Items, +30 Luck, +20% Area)",
 
@@ -503,7 +503,7 @@ const DB = {
         butcher:   { stats: { maxHp: 80, moveSpeed: -0.2, might: 0.3 }, hitboxWidth: 42, hitboxHeight: 55},
         alchemist: { stats: { duration: 0.3, cooldown: 0.2, area: 0.1 }, hitboxWidth: 35, hitboxHeight: 45 },
         spartan:   { stats: { maxHp: 30, might: 0.4, cooldown: -0.3, curse: 0.3 }, hitboxWidth: 37, hitboxHeight: 45 },
-        nun:       { stats: { moveSpeed: -0.1, hpRegen: 3, growth: 10, cooldown: 0.2, area: 0.1 }, hitboxWidth: 33, hitboxHeight: 44 },
+        nun:       { stats: { moveSpeed: -0.1, hpRegen: 3, growth: 2, cooldown: 0.2, area: 0.1 }, hitboxWidth: 33, hitboxHeight: 44 },
         exorcist:  { stats: { maxHp: -10, luck: 30, area: 0.2 }, hitboxWidth: 30, hitboxHeight: 43 }, 
         preacher:  { stats: { maxHp: 20, duration: 0.3 }, hitboxWidth: 34, hitboxHeight: 40 } 
     },
