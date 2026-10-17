@@ -228,14 +228,13 @@ function applyItemPassive(k) {
     if(k==='boots') player.stats.moveSpeed += 0.025; 
     if(k==='wings') { 
         player.stats.moveSpeed += 0.10; 
-        // HARD CAP: Evasion не выше 0.3 (30%)
-        player.stats.evasion = Math.min(player.stats.evasion + 0.025, 0.3);
+        addCappedStat(player.stats, 'evasion', 0.025);
     }
     if(k==='magnet') player.stats.magnet += 70; 
     if(k==='crown') player.stats.growth += 3; 
     if(k==='hollow_heart') { player.maxHp += 10; player.hp += 10; } 
     if(k==='bracer') { player.stats.duration += 0.05; player.stats.projSpeed += 0.05; }
-    if(k==='skull_ring') { player.stats.critChance += 0.05; player.stats.curse += 0.10; }
+    if(k==='skull_ring') { addCappedStat(player.stats, 'critChance', 0.05); player.stats.curse += 0.10; }
     if(k==='soul_stone') {
         player.stats.might += 0.20;
         // Сообщаем Кодексу, что открыт 1-й уровень камня
@@ -244,20 +243,19 @@ function applyItemPassive(k) {
         }
     }
     if(k==='mask') { 
-        // HARD CAP: VampChance не выше 0.3 (30%)
-        player.stats.vampChance = Math.min(player.stats.vampChance + 0.10, 0.3); 
+        addCappedStat(player.stats, 'vampChance', 0.10);
         player.stats.vampPower += 10; 
     }
 // --- НОВЫЕ ПРЕДМЕТЫ С КАПАМИ ---
     
 // Whetstone (Crit Chance). КАП 30%
     if (k === 'whetstone') { 
-        player.stats.critChance = Math.min(player.stats.critChance + 0.01, 0.30);
+        addCappedStat(player.stats, 'critChance', 0.01);
     }
-    
+
     // Mist Cloak (Evasion). КАП 30%
-    if (k === 'mist_cloak') { 
-        player.stats.evasion = Math.min(player.stats.evasion + 0.01, 0.30); 
+    if (k === 'mist_cloak') {
+        addCappedStat(player.stats, 'evasion', 0.01);
     }
     
     // Scope (Crit Damage)
@@ -292,7 +290,7 @@ function applyItemPassive(k) {
     // 2. Ninja Headband (Rate +3% / Crit +2%) -> КАП 30%
     if (k === 'ninja_headband') {
         player.stats.cooldown += 0.03;
-        player.stats.critChance = Math.min(player.stats.critChance + 0.02, 0.30);
+        addCappedStat(player.stats, 'critChance', 0.02);
     }
     
     // 3. Magnet Boots (Speed +2.5% / Magnet +20)
@@ -316,7 +314,7 @@ function applyItemPassive(k) {
     // 6. Sniper Lens (Proj Speed +3.5% / Crit +1.5%) -> КАП 30%
     if (k === 'sniper_lens') {
         player.stats.projSpeed += 0.035;
-        player.stats.critChance = Math.min(player.stats.critChance + 0.015, 0.30);
+        addCappedStat(player.stats, 'critChance', 0.015);
     }
     
     // 7. Explosive Powder (Area +5%)
@@ -369,13 +367,10 @@ function applyItemPassive(k) {
         player.stats.vampPower += 5;
 
         // Capped stats (Max 30%)
-        player.stats.critChance = Math.min(player.stats.critChance + 0.1, 0.3);
-        player.stats.evasion = Math.min(player.stats.evasion + 0.1, 0.3);
-        player.stats.vampChance = Math.min(player.stats.vampChance + 0.1, 0.3);
+        addCappedStat(player.stats, 'critChance', 0.1);
+        addCappedStat(player.stats, 'evasion', 0.1);
+        addCappedStat(player.stats, 'vampChance', 0.1);
     }
-    if (player.stats.critChance > 0.30) player.stats.critChance = 0.30;
-    if (player.stats.evasion > 0.30)    player.stats.evasion = 0.30;
-    if (player.stats.vampChance > 0.30) player.stats.vampChance = 0.30;
 }
 
 function applyCurse(id) {
@@ -486,15 +481,8 @@ function applyShopEffect(item) {
                 player.maxHp += item.stats[key]; 
                 player.hp += item.stats[key]; 
             } else { 
-                let newVal = (player.stats[key] || 0) + item.stats[key];
-                
-                // --- HARD CAP LOGIC ---
-                if (key === 'evasion') newVal = Math.min(newVal, 0.3);
-                if (key === 'vampChance') newVal = Math.min(newVal, 0.3);
-                if (key === 'critChance') newVal = Math.min(newVal, 1.0);
-                // ----------------------
-
-                player.stats[key] = newVal;
+                // Потолки (крит/уклонение/вампиризм) берутся из STAT_CAPS
+                addCappedStat(player.stats, key, item.stats[key]);
             }
         }
         damageNumbers.push({x:player.x, y:player.y-50, val: "UPGRADE!", color:'#f1c40f', life:120});

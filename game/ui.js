@@ -503,8 +503,9 @@ function getRandomCardOption(excludeIds = [], isChest = false) {
 
     let luck = player.stats.luck; 
     let wCommon = 60, wRare = 30, wEpic = 9, wLegendary = 1;
-    let shift = luck; 
-    if (wCommon - shift < 40) shift = wCommon - 40; 
+    let shift = luck;
+    // Потолок Luck = 40: обычные предметы не падают ниже 20% (при Luck 40: 20/54/21/5 %)
+    if (wCommon - shift < 20) shift = wCommon - 20;
     wCommon -= shift; wRare += shift * 0.6; wEpic += shift * 0.3; wLegendary += shift * 0.1;
     
     let total = wCommon + wRare + wEpic + wLegendary;
@@ -646,16 +647,14 @@ function generateCards(poolType, chestType, isMonument = false) {
 
         // 2. УБИРАЕМ СТАТЫ, ДОСТИГШИЕ ЛИМИТА
         opts = opts.filter(stat => {
-            if (stat === 'evasion' && player.stats.evasion >= 0.3) return false;     // Макс 30%
-            if (stat === 'vampChance' && player.stats.vampChance >= 0.3) return false; // Макс 30%
-            if (stat === 'critChance' && player.stats.critChance >= 0.3) return false; // Макс 30%
+            // Статы с потолком (STAT_CAPS) не предлагаем, когда потолок достигнут
+            if (STAT_CAPS[stat] !== undefined && (player.stats[stat] || 0) >= STAT_CAPS[stat]) return false;
             return true;
         });
-        
-        // Если забанили ВСЁ (редко, но бывает), вернем хотя бы Золото или Хил
-        if (opts.length === 0) opts = ['gold', 'maxHp']; 
+
+        // Если забанили ВСЁ (редко, но бывает), вернем хотя бы Силу
+        if (opts.length === 0) opts = ['might'];
         // ---------------------------------
-        if(!opts.includes('critChance')) opts.push('critChance');
         opts.sort(()=>Math.random()-0.5);
         opts.slice(0, 3).forEach(key => {
             let val = player.stats[key] || 0;
@@ -665,7 +664,7 @@ function generateCards(poolType, chestType, isMonument = false) {
             if(key==='greed' || key==='growth' || key==='luck') inc=2;
             if(key==='area') inc=0.05; if(key==='critChance') inc=0.025; if(key==='evasion') inc=0.025; if(key==='critDamage') inc=0.025;
             
-            let nextVal = val + inc;
+            let nextVal = capStat(key, val + inc);
             let txtCurr = (val*100).toFixed(1)+'%'; let txtNext = (nextVal*100).toFixed(1)+'%';
             if(key==='amount' || key==='vampPower') { txtCurr=val; txtNext=nextVal; }
             if(key==='greed' || key==='luck' || key==='growth') { txtCurr=`+${val}`; txtNext=`+${nextVal}`; }
@@ -676,11 +675,8 @@ function generateCards(poolType, chestType, isMonument = false) {
                 name: t('stat_'+key), desc: t('stat_desc_'+key), rarity:'common', img: null,
                 diff: `${txtCurr} <span class="stat-arrow">-></span> ${txtNext}`,
                 func: () => {
-                    // HARD CAP при выборе карточки
-                    if (key === 'evasion') player.stats[key] = Math.min(nextVal, 0.5);
-                    else if (key === 'vampChance') player.stats[key] = Math.min(nextVal, 0.8);
-                    else if (key === 'critChance') player.stats[key] = Math.min(nextVal, 1.0);
-                    else player.stats[key] = nextVal;
+                    // Потолки берутся из STAT_CAPS (уже набранное никогда не уменьшается)
+                    addCappedStat(player.stats, key, inc);
                 },
                 type: 'stats'
             });

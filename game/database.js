@@ -7,6 +7,22 @@ const WORLD_SIZE = TILE_SIZE * MAP_TILES;
 const MAX_WEAPONS = 2; 
 const MAX_ITEMS = 5;
 
+// --- ПОТОЛКИ СТАТОВ (единое место) ---
+// Обычные источники (карточки, магазин, пассивки предметов) не поднимают стат выше потолка.
+// Проклятия («сверх лимита») могут его превысить. Уже набранное значение никогда не уменьшается.
+const STAT_CAPS = { critChance: 0.30, evasion: 0.30, vampChance: 0.30 };
+
+function capStat(key, value) {
+    return STAT_CAPS[key] !== undefined ? Math.min(value, STAT_CAPS[key]) : value;
+}
+
+function addCappedStat(stats, key, amount) {
+    const cur = stats[key] || 0;
+    const next = cur + amount;
+    const cap = STAT_CAPS[key];
+    stats[key] = (cap !== undefined && next > cap) ? Math.max(cur, cap) : next;
+}
+
 // ДЕФОЛТНЫЙ ЯЗЫК
 let currentLang = 'en';
 
