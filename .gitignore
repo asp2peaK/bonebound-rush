@@ -1,0 +1,12 @@
+# Personal notes and plans (stay local)
+планы.txt
+новый текстовый документ*.txt
+
+# Unused / working sprite versions (not referenced by the game)
+sprites/unused/
+sprites/**/fix/
+
+# OS junk
+Thumbs.db
+desktop.ini
+.DS_Store
