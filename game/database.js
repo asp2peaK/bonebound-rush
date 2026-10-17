@@ -121,10 +121,10 @@ const TRANSLATIONS = {
 
         cdesc_sword: "Урон x3, но Атака в 3 раза реже",
         cdesc_wand: "+3 Снаряда, но Урон -40% и Разброс",
-        cdesc_axe: "Размер +30%, но летят в 2 раза медленнее",
-        cdesc_knife: "Крит 30% и Пронзание, но Всегда 1 нож",
+        cdesc_axe: "Размер +50%, но летят в 2 раза медленнее",
+        cdesc_knife: "Крит 50% и Пронзание, но Всегда 1 нож",
         cdesc_garlic: "Вампиризм, но Радиус -40%",
-        cdesc_bible: "Бесконечная длительность, но Вращение -50%",
+        cdesc_bible: "Бесконечная длительность, но Вращение -70%",
         cdesc_spear: "+3 Копья (Веер), но Атака реже (x1.5)",
         cdesc_holywater: "Лужи +40%, но Наносят урон ТЕБЕ",
         cdesc_cross: "Стоит на месте и крутится, не возвращается",
@@ -265,7 +265,7 @@ const TRANSLATIONS = {
         cdesc_axe: "Size +50%, but Flight Speed -50%",
         cdesc_knife: "Crit 50% & Pierce, but Fixed 1 knife",
         cdesc_garlic: "Vampirism, but Area -40%",
-        cdesc_bible: "Infinite Duration, but Spin Speed -50%",
+        cdesc_bible: "Infinite Duration, but Spin Speed -70%",
         cdesc_spear: "+3 Spears (Fan), but Cooldown x1.5",
         cdesc_holywater: "Size +40%, but they hurt YOU",
         cdesc_cross: "Stationary Spin, does not return",
@@ -358,7 +358,7 @@ const DB_TEXTS = {
 
         desc_spinach: "Увеличивает наносимый урон (2.5%)", desc_armor: "Снижает получаемый урон", desc_candle: "Увеличивает Зону Поражения (2.5%)", desc_boots: "Увеличивает скорость бега (2.5%)", 
 
-        desc_plesen: "Накладывает стаки урона", desc_fireaura: "Оставляет огненный след", desc_gloves: "Повышает Скорострельность (2.5%)", desc_crown: "Увеличивает получаемый опыт", 
+        desc_plesen: "Накладывает стаки урона", desc_fireaura: "Оставляет огненный след", desc_gloves: "Повышает Скорострельность (5%)", desc_crown: "Увеличивает получаемый опыт", 
 
         desc_clover: "Повышает удачу", desc_magnet: "Радиус сбора предметов", desc_ring: "Добавляет снаряды оружию", desc_zap: "Ударяет цепной молнией", 
 
@@ -390,9 +390,9 @@ const DB_TEXTS = {
 
 
 
-        desc_whetstone: "+1% Крит Шанс (Макс 30%)", desc_mist_cloak: "+1% Уклонение (Макс 60%)", desc_scope: "+0.05 Крит Урон", desc_empty_bottle: "+1 Сила Вампиризма",
+        desc_whetstone: "+1% Крит Шанс (Макс 30%)", desc_mist_cloak: "+1% Уклонение (Макс 30%)", desc_scope: "+0.025 Крит Урон", desc_empty_bottle: "+1 Сила Вампиризма",
 
-        desc_coffee: "+3% Скорость, +2% Скор. Атаки", desc_heavy_stone: "+5% Урон, -2% Скорость", desc_coin_purse: "+4 Жадность", desc_light_feather: "+5% Скорость",
+        desc_coffee: "+1.5% Скорость, +1% Скор. Атаки", desc_heavy_stone: "+4% Урон, -1.5% Скорость", desc_coin_purse: "+4 Жадность", desc_light_feather: "+2.5% Скорость",
         spiked_pauldrons: "Шипастые Наплечники", ninja_headband: "Повязка Ниндзя", magnet_boots: "Магнитные Ботинки",
         ruby_ring: "Рубиновое Кольцо", sapphire_amulet: "Сапфировый Амулет", sniper_lens: "Линза Снайпера", explosive_powder: "Взрывной Порох",
 
@@ -430,7 +430,7 @@ const DB_TEXTS = {
 
         desc_spinach: "Increases Damage (2.5%)", desc_armor: "Reduces incoming Damage", desc_candle: "Increases Attack Radius (2.5%)", desc_boots: "Increases Move Speed (2.5%)", 
 
-        desc_plesen: "Applies damage stacks", desc_fireaura: "Leaves a fire trail", desc_gloves: "Increases Fire Rate (2.5%)", desc_crown: "Increases Exp Gain", 
+        desc_plesen: "Applies damage stacks", desc_fireaura: "Leaves a fire trail", desc_gloves: "Increases Fire Rate (5%)", desc_crown: "Increases Exp Gain", 
 
         desc_clover: "Increases Luck", desc_magnet: "Increases Pickup Range", desc_ring: "Adds projectiles to weapons", desc_zap: "Strikes with Chain Lightning", 
 
@@ -462,9 +462,9 @@ const DB_TEXTS = {
 
 
 
-        desc_whetstone: "+1% Crit Chance (Max 30%)", desc_mist_cloak: "+1% Evasion (Max 30%)", desc_scope: "+0.05 Crit Damage", desc_empty_bottle: "+1 Vampire Power",
+        desc_whetstone: "+1% Crit Chance (Max 30%)", desc_mist_cloak: "+1% Evasion (Max 30%)", desc_scope: "+0.025 Crit Damage", desc_empty_bottle: "+1 Vampire Power",
 
-        desc_coffee: "+3% MoveSpeed, +2% Fire Rate", desc_heavy_stone: "+5% Might, -2% MoveSpeed", desc_coin_purse: "+4 Greed", desc_light_feather: "+5% MoveSpeed",
+        desc_coffee: "+1.5% MoveSpeed, +1% Fire Rate", desc_heavy_stone: "+4% Might, -1.5% MoveSpeed", desc_coin_purse: "+4 Greed", desc_light_feather: "+2.5% MoveSpeed",
         spiked_pauldrons: "Spiked Pauldrons", ninja_headband: "Ninja Headband", magnet_boots: "Magnet Boots",
         ruby_ring: "Ruby Ring", sapphire_amulet: "Sapphire Amulet", sniper_lens: "Sniper Lens", explosive_powder: "Explosive Powder",
 
@@ -625,7 +625,7 @@ const DB = {
         boots: { descKey: 'cdesc_boots', type: 'passive', stats: { moveSpeed: 0.3, maxHpMult: -0.3 } },
         candle: { descKey: 'cdesc_candle', type: 'passive', stats: { area: 0.3, cooldown: -0.2 } },
         gloves: { descKey: 'cdesc_gloves', type: 'passive', stats: { cooldown: 0.3, area: -0.3 } },
-        clover: { descKey: 'cdesc_clover', type: 'passive', stats: { luck: 30, growth: -30 } }, 
+        clover: { descKey: 'cdesc_clover', type: 'passive', stats: { luck: 30, growth: -3 } },
         mask: { descKey: 'cdesc_mask', type: 'passive', stats: { vampChance: 0.2, maxHpMult: -0.5 } },
         skull_ring: { descKey: 'cdesc_skull_ring', type: 'passive', stats: { critChance: 0.2, curse: 0.3 } },
         // new

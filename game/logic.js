@@ -458,16 +458,20 @@ function applyShopEffect(item) {
     }
     else if (item.effect === 'random_level_up') {
         let candidates = [];
-        player.weapons.forEach(w => { if (w.level < 8) candidates.push(w); });
+        // Проклятые предметы «заморожены» и не прокачиваются; потолки уровней те же, что у карточек
+        player.weapons.forEach(w => { if (!w.isCursed && w.level < 10) candidates.push(w); });
         for (let id in player.items) {
+            if (player.cursedItems && player.cursedItems[id]) continue;
             let lvl = player.items[id];
-            let max = (DB.items[id] && DB.items[id].maxLevel) || 5;
+            let itemDb = DB.items[id] || {};
+            let max = itemDb.maxLevel || ({ common: 10, rare: 7, epic: 5, legendary: 3 }[itemDb.rarity || 'common']);
             if (lvl < max) candidates.push({type:'passive', id: id});
         }
         if (candidates.length > 0) {
             let choice = candidates[Math.floor(Math.random() * candidates.length)];
             if (choice.type === 'passive') {
                 player.items[choice.id]++;
+                applyItemPassive(choice.id); // раньше уровень рос, а бонус предмета не выдавался
                 damageNumbers.push({x:player.x, y:player.y-50, val: "LEVEL UP!", color:'#9b59b6', life:120});
             } else {
                 choice.level++;
@@ -1714,7 +1718,7 @@ enemies.forEach(e => {
         if (dist < player.stats.magnet && d.type !== 'heart') { d.x += (player.x-d.x)*0.15 * dt_scale; d.y += (player.y-d.y)*0.15 * dt_scale; }
         if (dist < 30) {
             drops.splice(i, 1);
-            if (d.type === 'xp') { let bonus = player.stats.growth; player.exp += 10 + bonus; if(player.exp >= player.nextLevelExp) levelUp(); }
+            if (d.type === 'xp') { let bonus = player.stats.growth; player.exp += Math.max(1, 10 + bonus); if(player.exp >= player.nextLevelExp) levelUp(); }
             else if (d.type === 'gold') { player.gold += (10 + player.stats.greed); }
             else if (d.type === 'heart') { player.hp = Math.min(player.maxHp, player.hp + 30); damageNumbers.push({x:player.x,y:player.y-30,val:"+30",color:"#2ecc71",life:40}); triggerHealFlash(); }
             if(window.updateUI) window.updateUI();
