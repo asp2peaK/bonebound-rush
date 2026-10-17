@@ -170,6 +170,7 @@ function getItemDynamicDesc(id, level) {
     if (id === 'ring') bonusText = ` (+${level})`;
     if (id === 'hollow_heart') bonusText = ` (+${level * 10} HP)`;
     if (id === 'bracer') bonusText = ` (+${level * 5}%)`;
+    if (id === 'plesen') bonusText = ` (max +${(5 + level * 2) * 10}%)`;
     if (id === 'skull_ring') bonusText = ` (${t('stat_critChance')} +${level * 5}%, ${t('stat_curse')} +${level * 10}%)`;
     if (id === 'wings') bonusText = ` (+${level * 10}% Spd, +${(level * 2.5).toFixed(1)}% Eva)`;
     if (id === 'thornmail') { let reflect = level * 10; bonusText = ` (${reflect}%)`; }

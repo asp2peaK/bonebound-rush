@@ -4,14 +4,16 @@
 
 function spawnDrop(x, y, t) { 
     // Настраиваем время жизни
-    let lifeTime = 600; // Дефолт (10 сек)
-    
+    let lifeTime = 600; // Дефолт (10 сек), реально используется только если expires = true
+    let expires = false;
+
     // ПРОКЛЯТИЕ: КОШЕЛЬ (Золото исчезает за 3 сек)
     if (t === 'gold' && player.cursedItems && player.cursedItems['coin_purse']) {
         lifeTime = 180; // 3 секунды
+        expires = true;
     }
-    
-    drops.push({ x: x, y: y, type: t, life: lifeTime }); 
+
+    drops.push({ x: x, y: y, type: t, life: lifeTime, expires: expires });
 }
 
 function spawnChest(x, y, type) {

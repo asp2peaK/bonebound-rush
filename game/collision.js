@@ -159,8 +159,12 @@ function dealDamage(e, dmg, sourceId = null, isVampire = false, critOverride = n
     
     // Плесень
     if(player.items['plesen'] && Math.random()<0.3) {
-        e.moldStacks=(e.moldStacks||0)+1; 
-        damageNumbers.push({x:e.x, y:e.y-40, val:"Mold", life:20, color:'#2ecc71'});
+        // Потолок стаков растёт с уровнем предмета: 5 + 2 за уровень (каждый стак = +10% урона по врагу)
+        let moldCap = 5 + 2 * player.items['plesen'];
+        if ((e.moldStacks || 0) < moldCap) {
+            e.moldStacks = (e.moldStacks || 0) + 1;
+            damageNumbers.push({x:e.x, y:e.y-40, val:"Mold", life:20, color:'#2ecc71'});
+        }
     }
     
     // ZAP

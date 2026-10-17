@@ -85,9 +85,19 @@ function startGame(hero) {
     document.getElementById('ui-layer').style.display = 'block';
     document.getElementById('gameCanvas').classList.remove('grayscale-filter');
 
-    gameTime = 0; 
-    stageStartTime = 0; 
-    isEndlessMode = false; 
+    gameTime = 0;
+    stageStartTime = 0;
+    isEndlessMode = false;
+
+    // --- СБРОС СОСТОЯНИЯ ПРЕДЫДУЩЕГО ЗАБЕГА ---
+    pendingActions = [];
+    soulStoneStage = 0; soulStoneStartKills = null;
+    if (DB.items.soul_stone) DB.items.soul_stone.img = 'soulstone1.png';
+    stopwatchTimer = 90; isTimeFrozen = false; freezeTimer = 0;
+    const freezeOverlay = document.getElementById('freeze-overlay');
+    if (freezeOverlay) freezeOverlay.classList.remove('active');
+    bossPhase = 1;
+    player.stunTimer = 0; player.fragileTimer = 0;
     
     const stTimer = document.getElementById('stage-timer');
     if(stTimer) { stTimer.innerText = "10:00"; stTimer.classList.remove('critical'); }

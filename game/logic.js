@@ -46,8 +46,32 @@ let projectiles = [];
 let damageNumbers = [];
 let firePools = [];
 let monuments = [];
-let portals = []; 
+let portals = [];
 let traders = [];
+
+// Отложенные действия: тикают вместе с игровым временем (на паузе стоят, при рестарте очищаются)
+let pendingActions = [];
+function scheduleAction(delayMs, fn) {
+    pendingActions.push({ t: delayMs, fn: fn });
+}
+function updatePendingActions(dtMs) {
+    if (pendingActions.length === 0) return;
+    const due = [];
+    pendingActions = pendingActions.filter(a => {
+        a.t -= dtMs;
+        if (a.t <= 0) { due.push(a); return false; }
+        return true;
+    });
+    due.forEach(a => a.fn());
+}
+
+// Таймеры «когда я последний раз бил этого врага» (ключ = сам объект врага, поэтому Map, а не {})
+function tickHitTimers(map, dtScale) {
+    for (const [enemy, left] of map) {
+        if (left > dtScale) map.set(enemy, left - dtScale);
+        else map.delete(enemy);
+    }
+}
 
 // Флаги спавна
 let bossesSpawned = {
@@ -131,7 +155,7 @@ function activateMonument(m) {
     if (document.activeElement) document.activeElement.blur();
     m.active = false; monumentReq += 5;
     monuments.forEach(mon => { if(mon.active) mon.req = monumentReq; });
-    setTimeout(() => spawnMonument(), 10000); 
+    scheduleAction(10000, () => spawnMonument());
     gameState = 'UPGRADE';
     
     // Передаем true третьим параметром -> значит "Это Монумент"
@@ -558,7 +582,7 @@ if (w.id === 'sword') {
         let baseSize = 70 * finalScale; // Длина удара
         let realReach = (baseSize * 0.35) + OFFSET;
         for(let i=0; i<=amount; i++) {
-            setTimeout(() => {
+            scheduleAction(i * (w.isCursed ? 300 : 150), () => {
                 let t = getNearest(player, realReach + 30);
                 let angle = t ? Math.atan2(t.y - player.y, t.x - player.x) : (player.direction === 'left' ? Math.PI : 0);
                 if (!t) angle = (player.direction === 'left' ? Math.PI : 0) + (i%2!==0 ? -0.4 : 0.4); 
@@ -573,7 +597,7 @@ if (w.id === 'sword') {
                     hitWidth: 0.06,  // Толщина хитбокса (0.1 = тонкий, 0.5 = жирный)
                     drawScale: 0.4  // Размер картинки (0.5 = маленькая, 1.0 = большая)
                 });
-            }, i * (w.isCursed ? 300 : 150)); 
+            });
         }
     }
     else if (w.id === 'wand') {
@@ -581,14 +605,14 @@ if (w.id === 'sword') {
         if (w.spread) t = { x: player.x + (Math.random()-0.5)*100, y: player.y + (Math.random()-0.5)*100 };
         if(t || w.spread){ 
             for(let i=0; i<=amount; i++) { 
-                setTimeout(() => {
+                scheduleAction(i*100, () => {
                     let a=Math.atan2(t.y-player.y, t.x-player.x);
                     // [ВСТАВИТЬ СЮДА 2] --- ПРИМЕНЯЕМ РАЗБРОС ---
                     a += angleOffset; 
                     // -----------------------------------------
                     if (w.spread) a += (Math.random()-0.5) * 1.5; else a += (Math.random()-0.5)*0.2; 
                     projectiles.push({ type:'bullet', x:player.x, y:player.y, vx:Math.cos(a)*w.speed*projSpeed, vy:Math.sin(a)*w.speed*projSpeed, life:100 * duration, size: 6 * finalScale, damage:w.damage*might, sourceId: w.id });
-                }, i*100);
+                });
             }
         }
     }
@@ -658,7 +682,7 @@ if (w.id === 'sword') {
                 speed: 0.05 * w.speed * projSpeed, 
                 life: w.durationInfinite ? 999999 : (180 * duration), 
                 size: 12 * finalScale, damage: w.damage * might, 
-                img: w.img, hitTimers: {}, sourceId: w.id 
+                img: w.img, hitTimers: new Map(), sourceId: w.id
             });
         }
     }
@@ -693,7 +717,7 @@ if (w.id === 'sword') {
         if (w.rangeMult) baseSize *= w.rangeMult; 
         let realReach = (baseSize * 0.68) + OFFSET;
         for(let i=0; i<=amount; i++) {
-            setTimeout(() => {
+            scheduleAction(i * 150, () => {
                 let t = getNearest(player, realReach + 40);
                 let angle = t ? Math.atan2(t.y - player.y, t.x - player.x) : (player.direction === 'left' ? Math.PI : 0);
                 
@@ -705,7 +729,7 @@ if (w.id === 'sword') {
                     hitWidth: 0.1,  // Копье должно быть уже меча (острее)
                     drawScale: 0.8   // Картинка копья тоже может быть другой
                 });
-            }, i * 150);
+            });
         }
     }
     else if (w.id === 'cross') {
@@ -742,7 +766,7 @@ if (w.id === 'sword') {
                     size: 12 * finalScale, 
                     
                     damage: w.damage * might, 
-                    img: 'frost_orb.png', sourceId: w.id, freeze: true, hitTimers: {} 
+                    img: 'frost_orb.png', sourceId: w.id, freeze: true, hitTimers: new Map()
                 });
             }
         } 
@@ -990,12 +1014,12 @@ firePools.forEach(p => {
             p.x = player.x + Math.cos(p.angle) * p.radius; p.y = player.y + Math.sin(p.angle) * p.radius;
             enemies.forEach(e => {
                 if (Math.hypot(p.x - e.x, p.y - e.y) < p.size + e.size) {
-                    if (!p.hitTimers[e] || p.hitTimers[e] <= 0) {
-                        dealDamage(e, p.damage, p.sourceId); if (p.freeze) e.freezeTimer = 60; p.hitTimers[e] = 20; 
+                    if ((p.hitTimers.get(e) || 0) <= 0) {
+                        dealDamage(e, p.damage, p.sourceId); if (p.freeze) e.freezeTimer = 60; p.hitTimers.set(e, 20);
                     }
                 }
             });
-            for(let k in p.hitTimers) if(p.hitTimers[k]>0) p.hitTimers[k]-=dt_scale;
+            tickHitTimers(p.hitTimers, dt_scale);
             return;
         }
 
@@ -1038,8 +1062,8 @@ firePools.forEach(p => {
         if(p.type === 'bible_book') {
             p.life -= 1 * dt_scale; p.angle += p.speed * dt_scale;
             p.x = player.x + Math.cos(p.angle) * p.radius; p.y = player.y + Math.sin(p.angle) * p.radius;
-            enemies.forEach(e => { if(Math.hypot(p.x - e.x, p.y - e.y) < p.size + e.size) { if (!p.hitTimers[e] || p.hitTimers[e] <= 0) { dealDamage(e, p.damage, p.sourceId, false, p.critFixed); p.hitTimers[e] = 20; } } });
-            for(let k in p.hitTimers) if(p.hitTimers[k]>0) p.hitTimers[k]-=dt_scale; return; 
+            enemies.forEach(e => { if(Math.hypot(p.x - e.x, p.y - e.y) < p.size + e.size) { if ((p.hitTimers.get(e) || 0) <= 0) { dealDamage(e, p.damage, p.sourceId, false, p.critFixed); p.hitTimers.set(e, 20); } } });
+            tickHitTimers(p.hitTimers, dt_scale); return;
         }
         
         if (p.type === 'boomerang') {
@@ -1048,7 +1072,7 @@ firePools.forEach(p => {
             else if (p.state === 'going') { p.x += p.vx * dt_scale; p.y += p.vy * dt_scale; p.vx *= 0.95; p.vy *= 0.95; if (Math.abs(p.vx) < 0.5 && Math.abs(p.vy) < 0.5) p.state = 'returning'; } 
             else { let dx = player.x - p.x; let dy = player.y - p.y; if (Math.hypot(dx, dy) < 30) { p.life = 0; return; } let angle = Math.atan2(dy, dx); p.x += Math.cos(angle) * p.returnSpeed * dt_scale; p.y += Math.sin(angle) * p.returnSpeed * dt_scale; }
             if (p.state !== 'stationary') p.rotation += 0.2 * dt_scale;
-            enemies.forEach(e => { if(Math.hypot(p.x-e.x, p.y-e.y) < p.size + e.size) { if (!p.hitList.includes(e)) { dealDamage(e, p.damage, p.sourceId, false, p.critFixed); p.hitList.push(e); setTimeout(() => { if(projectiles.includes(p)) { let idx = p.hitList.indexOf(e); if(idx>-1) p.hitList.splice(idx,1); } }, 500); } } }); return;
+            enemies.forEach(e => { if(Math.hypot(p.x-e.x, p.y-e.y) < p.size + e.size) { if (!p.hitList.includes(e)) { dealDamage(e, p.damage, p.sourceId, false, p.critFixed); p.hitList.push(e); scheduleAction(500, () => { if(projectiles.includes(p)) { let idx = p.hitList.indexOf(e); if(idx>-1) p.hitList.splice(idx,1); } }); } } }); return;
         }
         
         if (p.type === 'axe') {
@@ -1149,6 +1173,7 @@ function update(deltaTime) {
     const effectiveDelta = deltaTime * timeScale;
     const dt_scale = effectiveDelta / 16.666; 
     gameTime += effectiveDelta / 1000;
+    updatePendingActions(effectiveDelta);
 
     // --- PANDORA CURSE (FATAL ERROR) ---
     // Ставим это ДО регенерации, чтобы она не срабатывала зря
@@ -1518,7 +1543,7 @@ enemies.forEach(e => {
                          let tx = player.x + Math.cos(angle) * dist;
                          let ty = player.y + Math.sin(angle) * dist;
                          visualEffects.push({ type: 'warning_circle', x: tx, y: ty, life: 90, radius: 100 });
-                         setTimeout(() => { if(gameState === 'PLAYING' && !isTimeFrozen) spawnEnemyProjectile(tx, ty, 0, 0, 'explosion'); }, 1500);
+                         scheduleAction(1500, () => { if(gameState === 'PLAYING' && !isTimeFrozen) spawnEnemyProjectile(tx, ty, 0, 0, 'explosion'); });
                      }
                 }
                 if (e.type === 'boss32' && e.lavaTimer <= 0) {
@@ -1681,7 +1706,14 @@ enemies.forEach(e => {
     });
     enemies = enemies.filter(e => !e.dead);
     
-    drops.forEach((d, i) => {
+    // Исчезающие дропы (золото при проклятом Кошеле); остальные лежат до подбора
+    drops = drops.filter(d => {
+        if (d.expires) { d.life -= dt_scale; return d.life > 0; }
+        return true;
+    });
+    // Идём с конца, чтобы splice не пропускал соседние дропы
+    for (let i = drops.length - 1; i >= 0; i--) {
+        const d = drops[i];
         let dist = Math.hypot(player.x - d.x, player.y - d.y);
         if (dist < player.stats.magnet && d.type !== 'heart') { d.x += (player.x-d.x)*0.15 * dt_scale; d.y += (player.y-d.y)*0.15 * dt_scale; }
         if (dist < 30) {
@@ -1689,9 +1721,9 @@ enemies.forEach(e => {
             if (d.type === 'xp') { let bonus = player.stats.growth; player.exp += 10 + bonus; if(player.exp >= player.nextLevelExp) levelUp(); }
             else if (d.type === 'gold') { player.gold += (10 + player.stats.greed); }
             else if (d.type === 'heart') { player.hp = Math.min(player.maxHp, player.hp + 30); damageNumbers.push({x:player.x,y:player.y-30,val:"+30",color:"#2ecc71",life:40}); triggerHealFlash(); }
-            if(window.updateUI) window.updateUI(); 
+            if(window.updateUI) window.updateUI();
         }
-    });
+    }
 
     for (let i = chests.length - 1; i >= 0; i--) {
         let c = chests[i];
