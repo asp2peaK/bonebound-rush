@@ -583,7 +583,8 @@ if (w.id === 'sword') {
             scheduleAction(i * (w.isCursed ? 300 : 150), () => {
                 let t = getNearest(player, realReach + 30);
                 let angle = t ? Math.atan2(t.y - player.y, t.x - player.x) : (player.direction === 'left' ? Math.PI : 0);
-                if (!t) angle = (player.direction === 'left' ? Math.PI : 0) + (i%2!==0 ? -0.4 : 0.4); 
+                if (!t) angle = (player.direction === 'left' ? Math.PI : 0) + (i%2!==0 ? -0.4 : 0.4);
+                angle += angleOffset; // проклятый Кофе: косая стрельба
                 let tx = player.x + Math.cos(angle) * realReach;
                 let ty = player.y + Math.sin(angle) * realReach;
                 
@@ -635,7 +636,7 @@ if (w.id === 'sword') {
         for(let i=0; i<=amount; i++) {
             let spread = (i - amount/2) * 20;
             let throwSpeed = 6 * projSpeed;
-            let angle = Math.atan2(targetY - player.y, targetX - player.x + spread);
+            let angle = Math.atan2(targetY - player.y, targetX - player.x + spread) + angleOffset; // + косая стрельба Кофе
             
             projectiles.push({ 
                 type: 'axe', 
@@ -688,9 +689,16 @@ if (w.id === 'sword') {
         let garlicBonus = (1 + amount * 0.3); 
         // Проклятие уже уменьшило w.area (areaMult 0.6), второй раз резать радиус не нужно
         let rad = (90 * finalScale);
+        let garlicHits = 0;
         enemies.forEach(e => {
-            if(Math.hypot(player.x-e.x, player.y-e.y) < rad + e.size) dealDamage(e, w.damage * might * garlicBonus, w.id, w.vampire);
+            if(Math.hypot(player.x-e.x, player.y-e.y) < rad + e.size) { dealDamage(e, w.damage * might * garlicBonus, w.id); garlicHits++; }
         });
+        // Проклятие «Вампиризм»: +1 HP за каждый удар ауры, задевший хотя бы одного врага
+        if (w.vampire && garlicHits > 0) {
+            player.hp = Math.min(player.maxHp, player.hp + 1);
+            damageNumbers.push({x:player.x, y:player.y-40, val: "+1", life:30, color:'#2ecc71'});
+            if(window.updateUI) window.updateUI();
+        }
     }
     // --- FIX: СВЯТАЯ ВОДА (Считаем урон здесь) ---
     else if (w.id === 'holywater') {
@@ -718,6 +726,7 @@ if (w.id === 'sword') {
             scheduleAction(i * 150, () => {
                 let t = getNearest(player, realReach + 40);
                 let angle = t ? Math.atan2(t.y - player.y, t.x - player.x) : (player.direction === 'left' ? Math.PI : 0);
+                angle += angleOffset; // проклятый Кофе: косая стрельба
                 
                 projectiles.push({ 
                     type:'slash', x:player.x, y:player.y, tx:player.x + Math.cos(angle) * realReach, ty:player.y + Math.sin(angle) * realReach, life:12, 
@@ -732,7 +741,7 @@ if (w.id === 'sword') {
     }
     else if (w.id === 'cross') {
         let t = getNearest(player, 500);
-        let baseAngle = t ? Math.atan2(t.y-player.y, t.x-player.x) : 0;
+        let baseAngle = (t ? Math.atan2(t.y-player.y, t.x-player.x) : 0) + angleOffset; // + косая стрельба Кофе
         if (w.stationary) {
              projectiles.push({ type: 'boomerang', x: player.x, y: player.y, vx: 0, vy: 0, returnSpeed: 0, state: 'stationary', life: 180, size: 25 * finalScale, damage: w.damage * might * 2, img: w.img, hitList: [], rotation: 0, sourceId: w.id });
         } else {
@@ -771,7 +780,7 @@ if (w.id === 'sword') {
         // --- ОБЫЧНАЯ (СТРЕЛЬБА) ---
         else {
             let t = getNearest(player, 500);
-            let baseAngle = t ? Math.atan2(t.y-player.y, t.x-player.x) : (Math.random()*Math.PI*2);
+            let baseAngle = (t ? Math.atan2(t.y-player.y, t.x-player.x) : (Math.random()*Math.PI*2)) + angleOffset; // + косая стрельба Кофе
             for(let i=0; i<=amount; i++) {
                 let a = baseAngle + (i - amount/2) * 0.3;
                 projectiles.push({ 
@@ -850,6 +859,7 @@ else if (w.id === 'katana') {
             let pDir = player.direction || 'right';
             if(pDir==='left') ang = Math.PI; else if(pDir==='up') ang = -Math.PI/2; else if(pDir==='down') ang = Math.PI/2;
         }
+        ang += angleOffset; // проклятый Кофе: косая стрельба
 
         projectiles.push({
             type: 'slash_wave', x: player.x, y: player.y, 

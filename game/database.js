@@ -123,7 +123,7 @@ const TRANSLATIONS = {
         cdesc_wand: "+3 Снаряда, но Урон -40% и Разброс",
         cdesc_axe: "Размер +50%, но летят в 2 раза медленнее",
         cdesc_knife: "Крит 50% и Пронзание, но Всегда 1 нож",
-        cdesc_garlic: "Вампиризм, но Радиус -40%",
+        cdesc_garlic: "Лечит 1 HP за каждый удар ауры, но Радиус -40%",
         cdesc_bible: "Бесконечная длительность, но Вращение -70%",
         cdesc_spear: "+3 Копья (Веер), но Атака реже (x1.5)",
         cdesc_holywater: "Лужи +40%, но Наносят урон ТЕБЕ",
@@ -133,9 +133,9 @@ const TRANSLATIONS = {
         cdesc_clover: "Удача +30, но Опыт -30%", cdesc_mask: "Вампиризм +20%, но Макс. ХП -50%", cdesc_skull_ring: "Крит +20%, но Проклятие +30%",
         // НОВЫЕ ПРОКЛЯТИЯ (Описания)
         cdesc_frost_orb: "Висит на тебе щитом (10 сек), не летит",
-        cdesc_fire_scroll: "Взрыв не наносит урон, но создает Вечный Огонь",
+        cdesc_fire_scroll: "Взрыв не наносит урон, но создает Вечный Огонь (жжёт и тебя!)",
         cdesc_katana: "Крит +20%, но Бьет медленнее в 2.5 раз",
-        cdesc_landmines: "Мина распадается на 3 мелкие при взрыве",
+        cdesc_landmines: "Мина распадается на 3 мелкие при взрыве (они ранят и тебя)",
         // ПРОКЛЯТИЯ (Описания)
         cdesc_whetstone: "+15% Крит (сверх лимита), но -30% Урон",
         cdesc_mist_cloak: "+10% Уклонение, но +25% Входящий Урон",
@@ -264,7 +264,7 @@ const TRANSLATIONS = {
         cdesc_wand: "+3 Projectiles, but Dmg -40% & Spread",
         cdesc_axe: "Size +50%, but Flight Speed -50%",
         cdesc_knife: "Crit 50% & Pierce, but Fixed 1 knife",
-        cdesc_garlic: "Vampirism, but Area -40%",
+        cdesc_garlic: "Heals 1 HP per aura hit, but Area -40%",
         cdesc_bible: "Infinite Duration, but Spin Speed -70%",
         cdesc_spear: "+3 Spears (Fan), but Cooldown x1.5",
         cdesc_holywater: "Size +40%, but they hurt YOU",
@@ -283,9 +283,9 @@ const TRANSLATIONS = {
         cdesc_light_feather: "+40% MoveSpeed, but +25% Incoming Damage",
         // new
         cdesc_frost_orb: "Stationary Shield (10s), does not fly",
-        cdesc_fire_scroll: "Explosion deals 0 dmg, but creates Eternal Fire",
+        cdesc_fire_scroll: "Explosion deals 0 dmg, but creates Eternal Fire (burns YOU too!)",
         cdesc_katana: "Crit Chance +20%, but attacks are slower (-2.5x)",
-        cdesc_landmines: "Spawns 3 mini-mines on explosion",
+        cdesc_landmines: "Spawns 3 mini-mines on explosion (they hurt YOU too)",
 
         // NEW ITEMS
         whetstone: "Whetstone", mist_cloak: "Mist Cloak", scope: "Scope", empty_bottle: "Empty Bottle",
@@ -370,7 +370,7 @@ const DB_TEXTS = {
 
         desc_hollow_heart: "Увеличивает макс. здоровье", desc_bracer: "Повышает Скорость Снарядов", desc_skull_ring: "Дает Шанс Крита и Проклятие",
 
-        desc_stopwatch: "Замораживает время (90 сек КД)", desc_thornmail: "Возвращает часть урона врагам", desc_phoenix: "Воскрешение при смерти (1 раз)", desc_soul_stone: "Сила растет от убийств (Уник.)",
+        desc_stopwatch: "Замораживает время (90 сек КД)", desc_thornmail: "Возвращает часть урона врагам", desc_phoenix: "Воскрешение при смерти (1 раз), сжигает всех врагов", desc_soul_stone: "Сила растет от убийств (Уник.)",
 
         //new
 
@@ -442,7 +442,7 @@ const DB_TEXTS = {
 
         desc_hollow_heart: "Increases Max Health", desc_bracer: "Buffs Flight Speed & Lifetime", desc_skull_ring: "Increases Crit Chance, adds Curse",
 
-        desc_stopwatch: "Freezes enemies (90s CD)", desc_thornmail: "Reflects damage to enemies (10% when you pickup)", desc_phoenix: "Revives on death (One-time)", desc_soul_stone: "Might grows with kills (Unique)",
+        desc_stopwatch: "Freezes enemies (90s CD)", desc_thornmail: "Reflects damage to enemies (10% when you pickup)", desc_phoenix: "Revives on death (one-time) and destroys all enemies", desc_soul_stone: "Might grows with kills (Unique)",
 
         //new
 
