@@ -231,8 +231,12 @@ function startGame(hero) {
     if (am) am.pause(); // Останавливаем тему меню
     playNextGameTrack(); // Запускаем боевую музыку
     
-    gameCanvas.focus(); 
-    requestAnimationFrame(loop);
+    gameCanvas.focus();
+    // loop() сам себя перезапускает, поэтому стартуем его только один раз за сессию
+    if (!window.gameLoopStarted) {
+        window.gameLoopStarted = true;
+        requestAnimationFrame(loop);
+    }
 }
 
 // game/main.js -> Замени функцию sendSyncData
